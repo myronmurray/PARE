@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import io
 import os
+import sys
 import time
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Union
 
@@ -26,6 +28,41 @@ from pare.utils.path_utils import resolve_asset_path, resolve_data_path
 # Ensure EGL is used when available, matching the CLI demo behaviour.
 os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
 
+
+_CONSOLE_ENABLED: ContextVar[bool] = ContextVar("pare_console_enabled", default=True)
+_CONSOLE_PATCHED = False
+
+
+def _console_filter(record: Dict[str, Any]) -> bool:
+    """Allow console logs only when the current context enables them."""
+
+    try:
+        return _CONSOLE_ENABLED.get()
+    except LookupError:  # pragma: no cover - fallback for exotic contexts.
+        return True
+
+
+if not _CONSOLE_PATCHED:
+    # Replace the default stderr sink with one honouring the context flag.
+    try:
+        logger.remove(0)
+    except (ValueError, KeyError):  # Default sink already removed/customised.
+        pass
+
+    logger.add(
+        sys.stderr,
+        level="INFO",
+        colorize=True,
+        format=(
+            "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> "
+            "| <level>{level:<8}</level> | "
+            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+            "<level>{message}</level>"
+        ),
+        filter=_console_filter,
+    )
+    _CONSOLE_PATCHED = True
+
 CFG = resolve_data_path("pare", "checkpoints", "pare_w_3dpw_config.yaml")
 CKPT = resolve_data_path("pare", "checkpoints", "pare_w_3dpw_checkpoint.ckpt")
 
@@ -41,8 +78,12 @@ def _silence_output(verbose: bool):
         return
 
     buffer = io.StringIO()
-    with redirect_stdout(buffer), redirect_stderr(buffer):
-        yield
+    token = _CONSOLE_ENABLED.set(False)
+    try:
+        with redirect_stdout(buffer), redirect_stderr(buffer):
+            yield
+    finally:
+        _CONSOLE_ENABLED.reset(token)
 def _first_image_shape(folder: Path) -> Tuple[int, int, int]:
     """Return the shape of the first image inside ``folder``."""
 
