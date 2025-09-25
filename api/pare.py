@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import io
 import os
 import sys
@@ -127,6 +128,7 @@ def run_pare(
     smplify: bool = False,
     device: str = "auto",
     verbose: bool = False,
+    return_outputs: bool = False,
     **extra_args: Any,
 ) -> Dict[str, Any]:
     """Execute the PARE demo logic programmatically.
@@ -149,6 +151,11 @@ def run_pare(
         When ``True`` enable INFO logs on stdout/stderr. When ``False``
         (default) stdout/stderr from the demo run are silenced to avoid noisy
         notebooks.
+    return_outputs:
+        When ``True`` include ``pare_results`` and ``tracking_results`` in the
+        returned dictionary. Defaults to ``False`` to minimise host and GPU
+        memory usage; the outputs are still written to disk unless ``no_save``
+        is ``True``.
     extra_args:
         Additional keyword arguments forwarded to ``PARETester``.
 
@@ -214,9 +221,13 @@ def run_pare(
 
     with _silence_output(verbose):
         if mode == "video":
-            results.update(_run_video_demo(args, output_root))
+            results.update(
+                _run_video_demo(args, output_root, return_outputs)
+            )
         else:
-            results.update(_run_folder_demo(args, output_root))
+            results.update(
+                _run_folder_demo(args, output_root, return_outputs)
+            )
 
     return results
 
@@ -224,6 +235,7 @@ def run_pare(
 def _run_video_demo(
     args: argparse.Namespace,
     output_root: Path,
+    return_outputs: bool,
 ) -> Dict[str, Any]:
     """Run the video demo path and return collected artefacts."""
 
@@ -344,17 +356,26 @@ def _run_video_demo(
             )
             rendered_video = save_name
 
-        return {
+        results: Dict[str, Any] = {
             "output_path": str(output_path),
             "num_frames": num_frames,
             "image_shape": img_shape,
-            "pare_results": pare_results,
-            "tracking_results": tracking_results,
             "results_file": str(results_file) if not args.no_save else None,
             "rendered_video": str(rendered_video) if rendered_video else None,
             "fps": fps,
             "total_time": total_time,
         }
+
+        if return_outputs:
+            results["pare_results"] = pare_results
+            results["tracking_results"] = tracking_results
+
+        if not return_outputs:
+            del pare_results
+            del tracking_results
+            gc.collect()
+
+        return results
     finally:
         logger.remove(logger_id)
 
@@ -362,6 +383,7 @@ def _run_video_demo(
 def _run_folder_demo(
     args: argparse.Namespace,
     output_root: Path,
+    return_outputs: bool,
 ) -> Dict[str, Any]:
     """Run the folder demo path and return collected artefacts."""
 
@@ -423,12 +445,20 @@ def _run_folder_demo(
             total_fps,
         )
 
-        return {
+        results: Dict[str, Any] = {
             "output_path": str(output_path),
             "num_frames": num_frames,
             "fps": fps,
             "total_time": total_time,
-            "detections": detections,
         }
+
+        if return_outputs:
+            results["detections"] = detections
+
+        if not return_outputs:
+            del detections
+            gc.collect()
+
+        return results
     finally:
         logger.remove(logger_id)
