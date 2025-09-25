@@ -14,4 +14,4 @@ uv.lock
 .python-version
 pyproject.toml
 third_party/
-pare.egg-info
+pare.egg-info/
