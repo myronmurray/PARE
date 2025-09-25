@@ -32,6 +32,7 @@ from pare.core.trainer import PARETrainer
 from pare.utils.train_utils import load_pretrained_model
 from pare.core.config import run_grid_search_experiments
 from pare.utils.kp_utils import get_common_joint_names
+from pare.utils.device_utils import resolve_device, device_to_string
 
 
 def get_occluded_imgs(img, occ_size, occ_pixel, occ_stride):
@@ -121,19 +122,20 @@ def run_dataset(args, hparams):
 
     hparams.RUN_TEST = True
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    logger.info(torch.cuda.get_device_properties(device))
+    torch_device = resolve_device(args.device)
+    logger.info(f'Using device: {device_to_string(torch_device)}')
+    if torch_device.type == 'cuda':
+        logger.info(torch.cuda.get_device_properties(torch_device))
     logger.info(f'Hyperparameters: \n {hparams}')
 
-    model = PARETrainer(hparams=hparams).to(device)
+    model = PARETrainer(hparams=hparams).to(torch_device)
     model = model.eval()
 
     val_images_errors = []
 
     if hparams.TRAINING.PRETRAINED_LIT is not None:
         logger.warning(f'Loading pretrained model from {hparams.TRAINING.PRETRAINED_LIT}')
-        ckpt = torch.load(hparams.TRAINING.PRETRAINED_LIT)['state_dict']
+        ckpt = torch.load(hparams.TRAINING.PRETRAINED_LIT, map_location=torch_device)['state_dict']
         load_pretrained_model(model, ckpt, overwrite_shape_mismatch=True)
 
     dataloader = model.val_dataloader()[0]
@@ -146,7 +148,7 @@ def run_dataset(args, hparams):
 
         for k,v in batch.items():
             if isinstance(v, torch.Tensor):
-                batch[k] = batch[k].to(device)
+                batch[k] = batch[k].to(torch_device)
 
         occluded_images, idx_dict, output_size = get_occluded_imgs(
             batch['img'],
@@ -248,6 +250,8 @@ if __name__ == '__main__':
     parser.add_argument('--occ_size', type=int, default='40')  # Size of occluding window
     parser.add_argument('--pixel', type=int, default='0')  # Occluding window - pixel values
     parser.add_argument('--stride', type=int, default='40')  # Occlusion Stride
+    parser.add_argument('--device', default='auto', choices=['auto', 'cpu', 'cuda'],
+                        help='torch device override (default: auto)')
 
     args = parser.parse_args()
 

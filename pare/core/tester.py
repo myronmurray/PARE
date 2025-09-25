@@ -45,6 +45,7 @@ from ..utils.demo_utils import (
 )
 from ..utils.vibe_image_utils import get_single_image_crop_demo
 from ..utils.geometry import convert_weak_perspective_to_perspective
+from ..utils.device_utils import resolve_device, device_to_string
 
 
 MIN_NUM_FRAMES = 0
@@ -54,7 +55,10 @@ class PARETester:
     def __init__(self, args):
         self.args = args
         self.model_cfg = update_hparams(args.cfg)
-        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        preferred_device = getattr(args, 'device', 'auto')
+        self.device = resolve_device(preferred_device)
+        self.device_str = self.device.type
+        logger.info(f'Using tester device: {device_to_string(self.device)}')
         self.model = self._build_model()
         self._load_pretrained_model()
         self.model.eval()
@@ -115,7 +119,7 @@ class PARETester:
     def _load_pretrained_model(self):
         # ========= Load pretrained weights ========= #
         logger.info(f'Loading pretrained model from {self.args.ckpt}')
-        ckpt = torch.load(self.args.ckpt)['state_dict']
+        ckpt = torch.load(self.args.ckpt, map_location=self.device)['state_dict']
         load_pretrained_model(self.model, ckpt, overwrite_shape_mismatch=True, remove_lightning=True)
         logger.info(f'Loaded pretrained weights from \"{self.args.ckpt}\"')
 
@@ -128,7 +132,7 @@ class PARETester:
         else:
             # run multi object tracker
             mot = MPT(
-                device=self.device,
+                device=self.device_str,
                 batch_size=self.args.tracker_batch_size,
                 display=self.args.display,
                 detector_type=self.args.detector,
@@ -147,7 +151,7 @@ class PARETester:
     def run_detector(self, image_folder):
         # run multi object tracker
         mot = MPT(
-            device=self.device,
+            device=self.device_str,
             batch_size=self.args.tracker_batch_size,
             display=self.args.display,
             detector_type=self.args.detector,

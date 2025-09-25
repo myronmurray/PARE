@@ -160,7 +160,7 @@ def set_seed(seed_value):
     if seed_value >= 0:
         logger.info(f'Seed value for the experiment {seed_value}')
         os.environ['PYTHONHASHSEED'] = str(seed_value)
-        pl.trainer.seed_everything(seed_value)
+        pl.seed_everything(seed_value)
 
 def add_init_smpl_params_to_dict(state_dict):
     mean_params = np.load(SMPL_MEAN_PARAMS)

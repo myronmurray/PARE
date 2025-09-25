@@ -23,36 +23,39 @@ import argparse
 from loguru import logger
 import pytorch_lightning as pl
 
-from pare.utils.os_utils import copy_code
 from pare.core.trainer import PARETrainer
 from pare.utils.train_utils import load_pretrained_model
 from pare.core.config import run_grid_search_experiments
 from pare.utils.compute_error import compute_error
+from pare.utils.device_utils import resolve_device, device_to_accelerator, device_to_string
 
 
-def main(hparams):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+def main(hparams, device: str = 'auto'):
+    torch_device = resolve_device(device)
+    logger.info(f'Using device: {device_to_string(torch_device)}')
+    if torch_device.type == 'cuda':
+        logger.info(torch.cuda.get_device_properties(torch_device))
 
-    logger.info(torch.cuda.get_device_properties(device))
     logger.info(f'Hyperparameters: \n {hparams}')
 
     hparams.DATASET.NUM_WORKERS = 0  # set this to be compatible with other machines
-    model = PARETrainer(hparams=hparams).to(device)
+    model = PARETrainer(hparams=hparams).to(torch_device)
 
     if hparams.TRAINING.PRETRAINED_LIT is not None:
         logger.warning(f'Loading pretrained model from {hparams.TRAINING.PRETRAINED_LIT}')
-        ckpt = torch.load(hparams.TRAINING.PRETRAINED_LIT)['state_dict']
+        ckpt = torch.load(hparams.TRAINING.PRETRAINED_LIT, map_location=torch_device)['state_dict']
         load_pretrained_model(model, ckpt, overwrite_shape_mismatch=True)
 
     # most basic trainer, uses good defaults (1 gpu)
+    accelerator = device_to_accelerator(torch_device)
     trainer = pl.Trainer(
-        gpus=1,
-        resume_from_checkpoint=hparams.TRAINING.RESUME,
+        accelerator=accelerator,
+        devices=1,
         logger=None,
     )
 
     logger.info('*** Started testing ***')
-    trainer.test(model=model)
+    trainer.test(model=model, ckpt_path=hparams.TRAINING.RESUME)
 
     if '3dpw-all' in hparams.DATASET.VAL_DS:
         result_file = os.path.join(
@@ -76,6 +79,8 @@ if __name__ == '__main__':
     parser.add_argument('--gpu_arch', default=['tesla', 'quadro', 'rtx'],
                         nargs='*', help='additional options to update config')
     parser.add_argument('--no_best_ckpt', action='store_true')
+    parser.add_argument('--device', default='auto', choices=['auto', 'cpu', 'cuda'],
+                        help='torch device override (default: auto)')
 
     args = parser.parse_args()
 
@@ -95,4 +100,4 @@ if __name__ == '__main__':
 
     hparams.RUN_TEST = True
 
-    main(hparams)
+    main(hparams, device=args.device)

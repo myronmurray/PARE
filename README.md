@@ -24,12 +24,13 @@ PARE implemented in PyTorch.
 
 ## Updates
 
+- 25/09/2025: Updated Python compatiblity from 3.8 to 3.11
 - 13/10/2021: Demo and evaluation code is released.
 
 ## Getting Started
 
-PARE has been implemented and tested on Ubuntu 18.04 with 
-python >= 3.7. If you don't have a suitable device, 
+PARE has been implemented and tested on Ubuntu 22.04 with 
+python == 3.11. If you don't have a suitable device, 
 try running our Colab demo.
 
 Clone the repo:
@@ -51,8 +52,12 @@ source scripts/install_conda.sh
 ## Demo
 
 First, you need to download the required data 
-(i.e our trained model and SMPL model parameters). It is approximately 1.3GB. 
-To do this you can just run:
+(i.e our trained model and SMPL model parameters). It is approximately 1.3GB.
+
+Note: These steps assume that [FFmpeg] is available on your system `PATH`.
+If FFmpeg is not already installed, install it via your package manager (e.g. `sudo apt install ffmpeg`, `brew install ffmpeg`) before running the demo.
+
+To download the assets you can run:
 
 ```shell
 source scripts/prepare_data.sh
@@ -193,5 +198,4 @@ We indicate if a function or script is borrowed externally inside each file. Con
 For questions, please contact pare@tue.mpg.de
 
 For commercial licensing (and all related questions for business applications), please contact ps-licensing@tue.mpg.de.
-
 

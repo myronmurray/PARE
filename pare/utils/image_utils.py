@@ -6,7 +6,7 @@ import torch
 import joblib
 from skimage.transform import rotate, resize
 import numpy as np
-import jpeg4py as jpeg
+from imageio import v2 as imageio
 from trimesh.visual import color
 
 from ..core import constants
@@ -241,16 +241,13 @@ def read_img(img_fn):
     #  with open(img_fn, 'rb') as f:
         #  img = pil_img.open(f).convert('RGB')
     #  return img
-    if img_fn.endswith('jpeg') or img_fn.endswith('jpg'):
-        try:
-            with open(img_fn, 'rb') as f:
-                img = np.array(jpeg.JPEG(f).decode())
-        except jpeg.JPEGRuntimeError:
-            # logger.warning('{} produced a JPEGRuntimeError', img_fn)
-            img = cv2.cvtColor(cv2.imread(img_fn), cv2.COLOR_BGR2RGB)
+    img = cv2.imread(img_fn, cv2.IMREAD_COLOR)
+    if img is not None:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     else:
-    #  elif img_fn.endswith('png') or img_fn.endswith('JPG') or img_fn.endswith(''):
-        img = cv2.cvtColor(cv2.imread(img_fn), cv2.COLOR_BGR2RGB)
+        img = imageio.imread(img_fn)
+        if img.ndim == 2:  # grayscale fallback
+            img = np.stack([img] * 3, axis=-1)
     return img.astype(np.float32)
 
 

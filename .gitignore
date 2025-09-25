@@ -7,3 +7,10 @@ vibe-env/
 output/
 *.mp4
 results
+uv.lock
+.venv
+.venvs
+.vscode
+.python-version
+pyproject.toml
+third_party/

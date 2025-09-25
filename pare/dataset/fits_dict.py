@@ -19,7 +19,7 @@ import cv2
 import torch
 import numpy as np
 from loguru import logger
-from torchgeometry import angle_axis_to_rotation_matrix
+from kornia.geometry.conversions import angle_axis_to_rotation_matrix
 
 from ..core import constants, config
 

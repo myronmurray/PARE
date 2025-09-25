@@ -236,6 +236,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--smplify', action='store_true',
                         help='run MMPose and smplify to refine poses further')
+    parser.add_argument('--device', default='auto', choices=['auto', 'cpu', 'cuda'],
+                        help='torch device override (default: auto)')
 
     args = parser.parse_args()
 
