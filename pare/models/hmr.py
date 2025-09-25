@@ -23,6 +23,7 @@ from .head import HMRHead, SMPLHead, SMPLCamHead
 from .backbone.utils import get_backbone_info
 from .backbone.hrnet import hrnet_w32, hrnet_w48
 from ..utils.train_utils import load_pretrained_model
+from ..utils.path_utils import resolve_asset_path, resolve_data_path
 
 
 class HMR(nn.Module):
@@ -74,10 +75,12 @@ class HMR(nn.Module):
             )
 
         if pretrained is not None:
-            if pretrained == 'data/model_checkpoint.pt':
-                self.load_pretrained_spin(pretrained)
+            pretrained_path = resolve_asset_path(pretrained)
+            spin_ckpt = resolve_data_path('model_checkpoint.pt')
+            if pretrained_path == spin_ckpt:
+                self.load_pretrained_spin(str(pretrained_path))
             else:
-                self.load_pretrained(pretrained)
+                self.load_pretrained(str(pretrained_path))
 
     def forward(
             self,

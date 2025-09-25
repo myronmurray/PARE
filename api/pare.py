@@ -21,12 +21,13 @@ from pare.utils.demo_utils import (
     images_to_video,
     video_to_images,
 )
+from pare.utils.path_utils import resolve_asset_path, resolve_data_path
 
 # Ensure EGL is used when available, matching the CLI demo behaviour.
 os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
 
-CFG = Path("data/pare/checkpoints/pare_w_3dpw_config.yaml")
-CKPT = Path("data/pare/checkpoints/pare_w_3dpw_checkpoint.ckpt")
+CFG = resolve_data_path("pare", "checkpoints", "pare_w_3dpw_config.yaml")
+CKPT = resolve_data_path("pare", "checkpoints", "pare_w_3dpw_checkpoint.ckpt")
 
 __all__ = ["run_pare"]
 
@@ -42,8 +43,6 @@ def _silence_output(verbose: bool):
     buffer = io.StringIO()
     with redirect_stdout(buffer), redirect_stderr(buffer):
         yield
-
-
 def _first_image_shape(folder: Path) -> Tuple[int, int, int]:
     """Return the shape of the first image inside ``folder``."""
 
@@ -122,8 +121,8 @@ def run_pare(
     if mode not in {"video", "folder"}:
         raise ValueError("mode must be either 'video' or 'folder'.")
 
-    cfg_path = Path(cfg)
-    ckpt_path = Path(ckpt)
+    cfg_path = resolve_asset_path(cfg)
+    ckpt_path = resolve_asset_path(ckpt)
     if not cfg_path.is_file():
         raise FileNotFoundError(f"Config file not found: {cfg_path}")
     if not ckpt_path.is_file():

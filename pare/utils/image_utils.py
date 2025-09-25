@@ -12,6 +12,7 @@ from trimesh.visual import color
 from ..core import constants
 from .vibe_image_utils import gen_trans_from_patch_cv
 from .kp_utils import map_smpl_to_common
+from .path_utils import resolve_data_path
 
 def get_transform(center, scale, res, rot=0):
     """Generate transformation matrix."""
@@ -348,7 +349,9 @@ def generate_heatmaps_2d_batch(joints, num_joints=24, heatmap_size=56, image_siz
 
 
 def get_body_part_texture(faces, n_vertices=6890, non_parametric=False):
-    smpl_segmentation = joblib.load('data/smpl_partSegmentation_mapping.pkl')
+    smpl_segmentation = joblib.load(
+        str(resolve_data_path('smpl_partSegmentation_mapping.pkl'))
+    )
 
     smpl_vert_idx = smpl_segmentation['smpl_index']
     nparts = 24.

@@ -22,6 +22,7 @@ from loguru import logger
 from kornia.geometry.conversions import angle_axis_to_rotation_matrix
 
 from ..core import constants, config
+from ..utils.path_utils import resolve_data_path
 
 class FitsDict():
     """ Dictionary keeping track of the best fit per image in the training set """
@@ -43,7 +44,7 @@ class FitsDict():
                     self.fits_dict[ds_name] = torch.from_numpy(np.load(dict_file))
                 except IOError:
                     logger.warning(f'Static fits for {ds_name} could not found, initializing from mosh params')
-                    h36m = np.load('data/dataset_extras/h36m_train.npz')
+                    h36m = np.load(resolve_data_path('dataset_extras', 'h36m_train.npz'))
                     self.fits_dict[ds_name] =  torch.from_numpy(np.hstack([h36m['pose'], h36m['shape']]))
     def save(self):
         """ Save dictionary state to disk """

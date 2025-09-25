@@ -22,12 +22,15 @@ import torch
 import subprocess
 import numpy as np
 import os.path as osp
+from pathlib import Path
+from typing import Optional, Union
 from pytube import YouTube
 from collections import OrderedDict
 
 from .smooth_bbox import get_smooth_bbox_params, get_all_bbox_params
 from .vibe_image_utils import get_single_image_crop_demo
 from .geometry import rotation_matrix_to_angle_axis
+from .path_utils import resolve_data_path
 # from lib.smplify.temporal_smplify import TemporalSMPLify
 
 
@@ -208,23 +211,33 @@ def download_url(url, outdir):
     print(f'Downloading files from {url}')
     cmd = ['wget', '-c', url, '-P', outdir]
     subprocess.call(cmd)
+PathLike = Union[str, os.PathLike[str]]
 
 
-def download_ckpt(outdir='data/vibe_data', use_3dpw=False):
-    os.makedirs(outdir, exist_ok=True)
+def download_ckpt(outdir: Optional[PathLike] = None, use_3dpw: bool = False) -> str:
+    """Ensure the VIBE checkpoint is present locally and return its path."""
+
+    if outdir is None:
+        outdir_path = resolve_data_path('vibe_data')
+    else:
+        outdir_path = Path(outdir).expanduser()
+        if not outdir_path.is_absolute():
+            outdir_path = resolve_data_path(outdir_path)
+
+    os.makedirs(outdir_path, exist_ok=True)
 
     if use_3dpw:
-        ckpt_file = 'data/vibe_data/vibe_model_w_3dpw.pth.tar'
+        ckpt_name = 'vibe_model_w_3dpw.pth.tar'
         url = 'https://www.dropbox.com/s/41ozgqorcp095ja/vibe_model_w_3dpw.pth.tar'
-        if not os.path.isfile(ckpt_file):
-            download_url(url=url, outdir=outdir)
     else:
-        ckpt_file = 'data/vibe_data/vibe_model_wo_3dpw.pth.tar'
+        ckpt_name = 'vibe_model_wo_3dpw.pth.tar'
         url = 'https://www.dropbox.com/s/amj2p8bmf6g56k6/vibe_model_wo_3dpw.pth.tar'
-        if not os.path.isfile(ckpt_file):
-            download_url(url=url, outdir=outdir)
 
-    return ckpt_file
+    ckpt_path = outdir_path / ckpt_name
+    if not ckpt_path.is_file():
+        download_url(url=url, outdir=str(outdir_path))
+
+    return str(ckpt_path)
 
 
 def images_to_video(img_folder, output_vid_file, img_suffix='%06d.png', img_list=None):

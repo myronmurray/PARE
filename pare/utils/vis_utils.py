@@ -11,6 +11,7 @@ from matplotlib import cm as mpl_cm, colors as mpl_colors
 from . import kp_utils
 from ..core.config import SMPL_MODEL_DIR
 from ..models.head.smpl_head import SMPL
+from .path_utils import resolve_data_path
 
 
 def show_3d_pose(kp_3d, dataset='common', radius=1, ax=None):
@@ -180,7 +181,9 @@ def color_vertices(per_joint_label, alpha=1.0):
     per_joint_label np.array (24,)
     alpha: transparency values
     """
-    smpl_segmentation = joblib.load('data/smpl_segmentation_24joints.pkl')
+    smpl_segmentation = joblib.load(
+        str(resolve_data_path('smpl_segmentation_24joints.pkl'))
+    )
     n_vertices = smpl_segmentation['smpl_index'].shape[0]
 
     vertex_colors = np.ones((n_vertices, 4)) * np.array([0.3, 0.3, 0.3, alpha])

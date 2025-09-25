@@ -31,9 +31,10 @@ from pare.utils.demo_utils import (
     video_to_images,
     images_to_video,
 )
+from pare.utils.path_utils import resolve_data_path
 
-CFG = 'data/pare/checkpoints/pare_w_3dpw_config.yaml'
-CKPT = 'data/pare/checkpoints/pare_w_3dpw_checkpoint.ckpt'
+CFG = str(resolve_data_path('pare', 'checkpoints', 'pare_w_3dpw_config.yaml'))
+CKPT = str(resolve_data_path('pare', 'checkpoints', 'pare_w_3dpw_checkpoint.ckpt'))
 MIN_NUM_FRAMES = 0
 
 

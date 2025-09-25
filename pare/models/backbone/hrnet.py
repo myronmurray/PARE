@@ -11,6 +11,8 @@ from loguru import logger
 import torch.nn.functional as F
 from yacs.config import CfgNode as CN
 
+from ...utils.path_utils import resolve_asset_path, resolve_data_path
+
 models = [
     'hrnet_w32',
     'hrnet_w48',
@@ -604,7 +606,7 @@ def get_cfg_defaults(pretrained, width=32, downsample=False, use_conv=False):
     cfg = CN()
     cfg.MODEL = CN()
     cfg.MODEL.INIT_WEIGHTS = True
-    cfg.MODEL.PRETRAINED = pretrained  # 'data/pretrained_models/hrnet_w32-36af842e.pth'
+    cfg.MODEL.PRETRAINED = str(resolve_asset_path(pretrained))
     cfg.MODEL.EXTRA = HRNET
     cfg.MODEL.NUM_JOINTS = 24
     return cfg
@@ -612,19 +614,27 @@ def get_cfg_defaults(pretrained, width=32, downsample=False, use_conv=False):
 
 def hrnet_w32(
         pretrained=True,
-        pretrained_ckpt='data/pretrained_models/pose_coco/pose_hrnet_w32_256x192.pth',
+        pretrained_ckpt=None,
         downsample=False,
         use_conv=False,
 ):
-    cfg = get_cfg_defaults(pretrained_ckpt, width=32, downsample=downsample, use_conv=use_conv)
+    if pretrained_ckpt is None:
+        pretrained_ckpt = resolve_data_path('pretrained_models', 'pose_coco', 'pose_hrnet_w32_256x192.pth')
+    else:
+        pretrained_ckpt = resolve_asset_path(pretrained_ckpt)
+    cfg = get_cfg_defaults(str(pretrained_ckpt), width=32, downsample=downsample, use_conv=use_conv)
     return get_pose_net(cfg, is_train=True)
 
 
 def hrnet_w48(
         pretrained=True,
-        pretrained_ckpt='data/pretrained_models/pose_coco/pose_hrnet_w48_256x192.pth',
+        pretrained_ckpt=None,
         downsample=False,
         use_conv=False,
 ):
-    cfg = get_cfg_defaults(pretrained_ckpt, width=48, downsample=downsample, use_conv=use_conv)
+    if pretrained_ckpt is None:
+        pretrained_ckpt = resolve_data_path('pretrained_models', 'pose_coco', 'pose_hrnet_w48_256x192.pth')
+    else:
+        pretrained_ckpt = resolve_asset_path(pretrained_ckpt)
+    cfg = get_cfg_defaults(str(pretrained_ckpt), width=48, downsample=downsample, use_conv=use_conv)
     return get_pose_net(cfg, is_train=True)

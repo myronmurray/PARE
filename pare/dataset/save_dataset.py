@@ -27,6 +27,7 @@ from ..models import SMPL
 from ..core import constants, config
 from ..core.config import DATASET_FILES, DATASET_FOLDERS
 from ..utils.image_utils import crop, read_img
+from ..utils.path_utils import resolve_data_path
 from .coco_occlusion import load_coco_occluders, load_pascal_occluders
 
 
@@ -203,7 +204,14 @@ class SaveDataset(Dataset):
         # logger.debug(f'{rgb_img.shape}, {imgname}')
         rgb_img = cv2.cvtColor(rgb_img.astype(np.float32), cv2.COLOR_BGR2RGB)
 
-        cv2.imwrite(f'data/dataset_folders/cropped_images/{self.dataset}/{index:06d}.jpg', rgb_img)
+        output_path = resolve_data_path(
+            'dataset_folders',
+            'cropped_images',
+            self.dataset,
+            f"{index:06d}.jpg",
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        cv2.imwrite(str(output_path), rgb_img)
 
         return rgb_img
 

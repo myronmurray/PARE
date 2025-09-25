@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: pare
+Version: 0.1
+Summary: PARE: Part Attention Regressor for 3D Human Body Estimation
+Author: PARE team
+Requires-Python: >=3.11
+License-File: LICENSE
+Dynamic: author
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary

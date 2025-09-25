@@ -28,11 +28,13 @@ from yacs.config import CfgNode as CN
 from typing import Dict, List, Union, Any
 from flatten_dict import flatten, unflatten
 
+from pare.utils.path_utils import resolve_data_path
+
 # from ..utils.cluster import execute_task_on_cluster
 
 ##### CONSTANTS #####
-DATASET_NPZ_PATH = 'data/dataset_extras'
-DATASET_LMDB_PATH = 'data/lmdb'
+DATASET_NPZ_PATH = str(resolve_data_path('dataset_extras'))
+DATASET_LMDB_PATH = str(resolve_data_path('lmdb'))
 
 MMPOSE_PATH = '/is/cluster/work/mkocabas/projects/mmpose'
 MMDET_PATH = '/is/cluster/work/mkocabas/projects/mmdetection'
@@ -41,15 +43,15 @@ MMPOSE_CKPT = os.path.join(MMPOSE_PATH, 'checkpoints/hrnet_w48_coco_wholebody_25
 MMDET_CFG = os.path.join(MMDET_PATH, 'configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py')
 MMDET_CKPT = os.path.join(MMDET_PATH, 'checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth')
 
-PW3D_ROOT = 'data/dataset_folders/3dpw'
-OH3D_ROOT = 'data/dataset_folders/3doh'
+PW3D_ROOT = str(resolve_data_path('dataset_folders', '3dpw'))
+OH3D_ROOT = str(resolve_data_path('dataset_folders', '3doh'))
 
-JOINT_REGRESSOR_TRAIN_EXTRA = 'data/J_regressor_extra.npy'
-JOINT_REGRESSOR_H36M = 'data/J_regressor_h36m.npy'
-SMPL_MEAN_PARAMS = 'data/smpl_mean_params.npz'
-SMPL_MODEL_DIR = 'data/body_models/smpl'
-COCO_OCCLUDERS_FILE = 'data/occlusion_augmentation/coco_train2014_occluders.pkl'
-PASCAL_OCCLUDERS_FILE = 'data/occlusion_augmentation/pascal_occluders.pkl'
+JOINT_REGRESSOR_TRAIN_EXTRA = str(resolve_data_path('J_regressor_extra.npy'))
+JOINT_REGRESSOR_H36M = str(resolve_data_path('J_regressor_h36m.npy'))
+SMPL_MEAN_PARAMS = str(resolve_data_path('smpl_mean_params.npz'))
+SMPL_MODEL_DIR = str(resolve_data_path('body_models', 'smpl'))
+COCO_OCCLUDERS_FILE = str(resolve_data_path('occlusion_augmentation', 'coco_train2014_occluders.pkl'))
+PASCAL_OCCLUDERS_FILE = str(resolve_data_path('occlusion_augmentation', 'pascal_occluders.pkl'))
 
 DATASET_FOLDERS = {
     '3dpw': PW3D_ROOT,

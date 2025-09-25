@@ -110,7 +110,7 @@ def load_pascal_occluders(pascal_voc_root_path):
                 occluders.append(object_with_mask)
 
         print('Saving pascal occluders')
-        joblib.dump(occluders, 'data/occlusion_augmentation/pascal_occluders.pkl')
+        joblib.dump(occluders, PASCAL_OCCLUDERS_FILE)
         return occluders
 
 
@@ -278,4 +278,3 @@ def test_usage():
 
 if __name__ == '__main__':
     main()
-
