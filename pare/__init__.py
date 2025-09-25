@@ -1,7 +1,7 @@
 from collections import namedtuple
 import inspect
 import numpy as np
-from .api.pare import run_pare
+from pare.api.pare import run_pare
 
 __all__ = ["run_pare"]
 
