@@ -26,13 +26,13 @@ def _read_requirements() -> list[str]:
 
 
 setuptools.setup(
-    name="PARE",
+    name="pare",
     version="0.1",
     author="PARE team",
     description="PARE: Part Attention Regressor for 3D Human Body Estimation",
-    packages=setuptools.find_packages(include=["PARE", "PARE.*"]),
+    packages=setuptools.find_packages(),
     include_package_data=True,
-    package_data={"PARE": ["data/*", "data/**/*"]},
+    package_data={"pare": ["data/*", "data/**/*"]},
     python_requires=">=3.11",
     install_requires=_read_requirements(),
     zip_safe=False,
