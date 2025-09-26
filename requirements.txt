@@ -1,13 +1,13 @@
 numpy==1.26.4
-gdown==5.2.0
+gdown>=5.2.0
 torch==2.3.1
 torchvision==0.18.1
-joblib==1.4.2
-opencv-python==4.10.0.84
+joblib>=1.4.2
+opencv-python>=4.10.0.84
 trimesh==4.3.2
 pyrender==0.1.45
 smplx==0.1.28
-tqdm==4.66.5
+tqdm>=4.66.5
 loguru==0.7.2
 albumentations==1.4.18
 scipy==1.13.1
