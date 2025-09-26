@@ -2,8 +2,9 @@ from collections import namedtuple
 import inspect
 import numpy as np
 from .api.pare import run_pare
+from .utils.data_assets import download_data_assets
 
-__all__ = ["run_pare"]
+__all__ = ["run_pare", "download_data_assets"]
 
 if not hasattr(inspect, "getargspec"):
     ArgSpec = namedtuple("ArgSpec", "args varargs keywords defaults")
