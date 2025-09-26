@@ -24,6 +24,7 @@ PARE implemented in PyTorch.
 
 ## Updates
 
+- 26/09/2025: Added PARE API module (run_pare)
 - 25/09/2025: Updated Python compatiblity from 3.8 to 3.11
 - 13/10/2021: Demo and evaluation code is released.
 
@@ -33,38 +34,60 @@ PARE has been implemented and tested on Ubuntu 22.04 with
 python == 3.11. If you don't have a suitable device, 
 try running our Colab demo.
 
-Clone the repo:
+### Package (API)
+Install via pip or uv package manager:
+```shell
+# pip
+pip install git+https://github.com/myronmurray/PARE.git@demo_api
+# uv
+uv add git+https://github.com/myronmurray/PARE.git --branch demo_api
+```
 
+### Source (CLI)
+Clone the repo:
 ```shell
 git clone https://github.com/mkocabas/PARE.git
 ```
-
 Install the requirements using virtualenv or conda:
-
 ```shell
 # pip
 source scripts/install_pip.sh
-
 # conda
 source scripts/install_conda.sh
 ```
 
 ## Demo
 
+Note: These steps assume that FFmpeg is available on your system `PATH`.
+If FFmpeg is not already installed, install it via your package manager (e.g. `sudo apt install ffmpeg`, `brew install ffmpeg`) before running the demo.
+
 First, you need to download the required data 
 (i.e our trained model and SMPL model parameters). It is approximately 1.3GB.
 
-Note: These steps assume that [FFmpeg] is available on your system `PATH`.
-If FFmpeg is not already installed, install it via your package manager (e.g. `sudo apt install ffmpeg`, `brew install ffmpeg`) before running the demo.
+To download the assets:
 
-To download the assets you can run:
+After installing the package, you can run:
+
+```shell
+from pare import download_data_assets
+download_data_assets()
+```
+
+Or from the CLI after cloning the repo:
 
 ```shell
 source scripts/prepare_data.sh
 ```
 
 ### Video Demo
-Run the command below. See `scripts/demo.py` for more options.
+
+API: See 'pare/api/pare.py' for more options.
+```shell
+from pare import run_pare
+pare_result = run_pare(mode='video', vid_file='data/sample_video.mp4', output_folder='logs/demo')
+```
+
+CLI: Run the command below. See `scripts/demo.py` for more options.
 ```shell script
 python scripts/demo.py --vid_file data/sample_video.mp4 --output_folder logs/demo 
 ```
