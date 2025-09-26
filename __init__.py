@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from pare.api.pare import run_pare
+from .pare.api.pare import run_pare
 
 __all__ = ["run_pare"]
